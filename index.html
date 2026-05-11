@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard RRHH — Semar SRL</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f5f9;--surface:#ffffff;--s2:#eef0f5;--border:#dde1ea;--acc:#b8941f;--teal:#1ba89e;--red:#d63031;--pur:#5e54e8;--ora:#e67e22;--grn:#27ae60;--text:#1a1d29;--muted:#6b7180;--shadow:0 1px 3px rgba(0,0,0,.04);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:24px;}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.header h1{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-0.5px;}
+.header p{color:var(--muted);font-size:11px;margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+.badge{background:var(--acc);color:#ffffff;font-size:10px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;}
+.tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;}
+.tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .2s;}
+.tab.active{background:var(--acc);color:#ffffff;border-color:var(--acc);}
+.tab:hover:not(.active){color:var(--text);border-color:#444;}
+.pane{display:none;}.pane.active{display:block;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--acc);border-radius:10px 0 0 10px;}
+.kpi.t::before{background:var(--teal);}.kpi.r::before{background:var(--red);}.kpi.p::before{background:var(--pur);}
+.kpi-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);line-height:1;}
+.kpi-sub{color:var(--muted);font-size:10px;margin-top:4px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:var(--shadow);}
+.ct{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.ct span{color:var(--acc);font-size:10px;}
+.br{display:flex;align-items:center;margin-bottom:9px;gap:8px;}
+.bn{width:130px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+.bt{flex:1;height:5px;background:var(--s2);border-radius:3px;overflow:hidden;}
+.bf{height:100%;border-radius:3px;background:var(--acc);}
+.bv{font-size:11px;color:var(--text);width:80px;text-align:right;flex-shrink:0;}
+.dw{display:flex;align-items:center;gap:16px;}
+.li{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ll{color:var(--muted);flex:1;}.lv{color:var(--text);font-weight:500;}
+.mp{display:flex;}
+.mb{flex:1;text-align:center;padding:8px 0;}
+.mb .n{font-family:'DM Serif Display',serif;font-size:32px;color:var(--acc);line-height:1;}
+.mb .l{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.7px;margin-top:4px;}
+.dv{width:1px;background:var(--border);align-self:stretch;}
+.rb{position:relative;height:7px;background:var(--s2);border-radius:4px;margin:7px 0 4px;}
+.rf{position:absolute;height:100%;background:linear-gradient(90deg,var(--teal),var(--acc));border-radius:4px;left:0;width:100%;}
+.rl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.filters label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+.fsel{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;}
+.fsel:focus{border-color:var(--acc);}
+.fsearch{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;width:180px;outline:none;}
+.fsearch::placeholder{color:var(--muted);}
+.fsearch:focus{border-color:var(--acc);}
+.tbl-wrap{overflow-x:auto;max-height:520px;overflow-y:auto;}
+.tbl-wrap::-webkit-scrollbar{width:4px;height:4px;}
+.tbl-wrap::-webkit-scrollbar-track{background:var(--s2);}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:1;cursor:pointer;white-space:nowrap;}
+th:hover{color:var(--acc);}
+td{padding:7px 10px;font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap;}
+tr:hover td{background:rgba(0,0,0,.025);}
+tr:last-child td{border-bottom:none;}
+.chip{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:500;}
+.cy{background:rgba(184,148,31,.12);color:var(--acc);}
+.ct2{background:rgba(27,168,158,.12);color:var(--teal);}
+.cr{background:rgba(214,48,49,.12);color:var(--red);}
+.cp{background:rgba(94,84,232,.12);color:var(--pur);}
+.co{background:rgba(230,126,34,.12);color:var(--ora);}
+.cg{background:rgba(39,174,96,.12);color:var(--grn);}
+.cnt{font-size:11px;color:var(--muted);margin-bottom:8px;}
+canvas{max-height:280px;}
+.chart-wrap{position:relative;height:260px;}
+tfoot tr td{padding:8px 10px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div><h1>Dashboard RRHH</h1><p>Semar SRL &middot; Nómina Abril 2026 &middot; C-Level</p></div>
+  <div class="badge">Abril 2026</div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('resumen')">Resumen Ejecutivo</div>
+  <div class="tab" onclick="showTab('nomina')">Nómina Completa</div>
+  <div class="tab" onclick="showTab('egresos')">Tipos de Egreso</div>
+  <div class="tab" onclick="showTab('sucursales')">Costos por Sucursal</div>
+  <div class="tab" onclick="showTab('participacion')">Participación %</div>
+  <div class="tab" onclick="showTab('graficos')">Gráficos</div>
+</div>
+
+<!-- TAB 1: RESUMEN -->
+<div class="pane active" id="pane-resumen">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Empleados Activos</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">En planilla abril</div></div>
+    <div class="kpi t"><div class="kpi-label">Masa Salarial Base</div><div class="kpi-value" id="kpi-masa" style="font-size:19px">—</div><div class="kpi-sub">Salarios base del período</div></div>
+    <div class="kpi"><div class="kpi-label">Total Comisiones</div><div class="kpi-value" id="kpi-com" style="font-size:19px">—</div><div class="kpi-sub">Ventas + Cobranza</div></div>
+    <div class="kpi r"><div class="kpi-label">IPS Patronal</div><div class="kpi-value" id="kpi-ips" style="font-size:19px">—</div><div class="kpi-sub">Contribución empleador</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Top 8 — Comisiones x Ventas <span>PYG</span></div><div id="barCom"></div></div>
+    <div class="card">
+      <div class="ct">Distribución Salarial por Banda</div>
+      <div id="donut"></div>
+      <div style="margin-top:14px">
+        <div class="ct" style="margin-bottom:7px">Rango salarial</div>
+        <div class="rb"><div class="rf"></div></div>
+        <div class="rl"><span>₲290K (mín)</span><span>₲3.3M (med.)</span><span>₲35M (máx)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="ct">Género</div><div id="donut-gen"></div></div>
+    <div class="card"><div class="ct">Antigüedad</div><div id="bar-ant"></div></div>
+    <div class="card"><div class="ct">Estructura de Costo</div><div id="estructura"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Ausentismo — Descuentos</div>
+      <div class="mp">
+        <div class="mb"><div class="n" id="aus-cnt">—</div><div class="l">Empleados</div></div>
+        <div class="dv"></div>
+        <div class="mb"><div class="n" id="aus-tot" style="color:var(--red);font-size:20px">—</div><div class="l">Descuento</div></div>
+      </div>
+      <div id="ausencias" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Top Bonos del Período</div>
+      <div class="mp">
+        <div class="mb"><div class="n" id="bon-cnt">—</div><div class="l">Con bono</div></div>
+        <div class="dv"></div>
+        <div class="mb"><div class="n" id="bon-tot" style="font-size:20px">—</div><div class="l">Total</div></div>
+      </div>
+      <div id="bonosTop" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: NÓMINA COMPLETA -->
+<div class="pane" id="pane-nomina">
+  <div class="filters">
+    <label>Estado:</label>
+    <select class="fsel" id="fEstado" onchange="renderNomina()">
+      <option value="">Todos</option>
+      <option value="activo">Activos</option>
+      <option value="inactivo">Inactivos</option>
+    </select>
+    <label>Sucursal:</label>
+    <select class="fsel" id="fSucursal" onchange="renderNomina()">
+      <option value="">Todas</option>
+    </select>
+    <label>Género:</label>
+    <select class="fsel" id="fGenero" onchange="renderNomina()">
+      <option value="">Todos</option>
+      <option value="Masculino">Masculino</option>
+      <option value="Femenino">Femenino</option>
+    </select>
+    <label>Antigüedad:</label>
+    <select class="fsel" id="fAntig" onchange="renderNomina()">
+      <option value="">Todas</option>
+      <option value="0-1">0 a 11 meses</option>
+      <option value="1-3">1 año a 2 años 11 meses</option>
+      <option value="3-5">3 años a 4 años 11 meses</option>
+      <option value="5-10">5 años a 9 años 11 meses</option>
+      <option value="10+">10 años o más</option>
+    </select>
+    <label>Egreso:</label>
+    <select class="fsel" id="fEgreso" onchange="renderNomina()">
+      <option value="">Todos</option>
+      <option value="preaviso">Con Preaviso</option>
+      <option value="indemnizacion">Con Indemnización</option>
+      <option value="vacaciones">Con Vacaciones</option>
+    </select>
+    <input class="fsearch" id="fSearch" placeholder="Buscar nombre..." oninput="renderNomina()">
+  </div>
+  <div class="cnt" id="nomina-cnt"></div>
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortNomina('n')">Nombre ↕</th>
+          <th onclick="sortNomina('estado')">Estado</th>
+          <th onclick="sortNomina('suc')">Sucursal ↕</th>
+          <th onclick="sortNomina('gen')">Gén.</th>
+          <th onclick="sortNomina('antig')">Antigüedad ↕</th>
+          <th onclick="sortNomina('sbase')">Sal. Base ↕</th>
+          <th onclick="sortNomina('cv')">Com. Ventas ↕</th>
+          <th onclick="sortNomina('b')">Bono ↕</th>
+          <th onclick="sortNomina('aus')">Ausencia</th>
+          <th onclick="sortNomina('prev')">Preaviso</th>
+          <th onclick="sortNomina('indem')">Indemn.</th>
+          <th onclick="sortNomina('vacc')">Vacaciones</th>
+          <th onclick="sortNomina('ipp')">IPS Patr.</th>
+          <th onclick="sortNomina('costo')">Costo Total ↕</th>
+        </tr></thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: EGRESOS -->
+<div class="pane" id="pane-egresos">
+  <div class="kpi-grid">
+    <div class="kpi r"><div class="kpi-label">Con Preaviso</div><div class="kpi-value" id="eg-prev">—</div><div class="kpi-sub">Empleados en período</div></div>
+    <div class="kpi p"><div class="kpi-label">Con Indemnización</div><div class="kpi-value" id="eg-indem">—</div><div class="kpi-sub">Antigüedad reconocida</div></div>
+    <div class="kpi t"><div class="kpi-label">Con Vacaciones</div><div class="kpi-value" id="eg-vac">—</div><div class="kpi-sub">Causadas + proporcionales</div></div>
+    <div class="kpi"><div class="kpi-label">Costo Total Egresos</div><div class="kpi-value" id="eg-tot" style="font-size:18px">—</div><div class="kpi-sub">Preaviso + Indem. + Vac.</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Preaviso e Indemnización</div><div id="bar-prev"></div></div>
+    <div class="card"><div class="ct">Vacaciones (Causadas + Proporcionales)</div><div id="bar-vac"></div></div>
+  </div>
+  <div class="card">
+    <div class="ct">Detalle individual — empleados con egresos</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Sucursal</th><th>Sal. Base</th><th>Preaviso</th><th>Vac. Causadas</th><th>Vac. Prop.</th><th>Indemnización</th><th>Total Egreso</th></tr></thead>
+        <tbody id="tblEgBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: COSTOS POR SUCURSAL -->
+<div class="pane" id="pane-sucursales">
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortSuc('grp')">Sucursal / Función ↕</th>
+          <th onclick="sortSuc('emp')">Emp. ↕</th>
+          <th onclick="sortSuc('sbase')">Sal. Base ↕</th>
+          <th onclick="sortSuc('cv')">Com. Ventas ↕</th>
+          <th onclick="sortSuc('cc')">Com. Cobr. ↕</th>
+          <th onclick="sortSuc('b')">Bonos ↕</th>
+          <th onclick="sortSuc('ipp')">IPS Patr. ↕</th>
+          <th onclick="sortSuc('ag')">Aguinaldo ↕</th>
+          <th onclick="sortSuc('prev')">Preaviso ↕</th>
+          <th onclick="sortSuc('indem')">Indemn. ↕</th>
+          <th onclick="sortSuc('vac')">Vacaciones ↕</th>
+          <th onclick="sortSuc('total')" style="color:var(--acc)">Total ↕</th>
+        </tr></thead>
+        <tbody id="tblSucBody"></tbody>
+        <tfoot id="tblSucFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: PARTICIPACIÓN % -->
+<div class="pane" id="pane-participacion">
+  <div class="card" style="padding:0">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortPct('grp')">Sucursal / Función ↕</th>
+          <th onclick="sortPct('emp')">Emp. ↕</th>
+          <th onclick="sortPct('pSbase')">% Sal. Base ↕</th>
+          <th onclick="sortPct('pCv')">% Com. Ventas ↕</th>
+          <th onclick="sortPct('pCc')">% Com. Cobr. ↕</th>
+          <th onclick="sortPct('pB')">% Bonos ↕</th>
+          <th onclick="sortPct('pIpp')">% IPS Patr. ↕</th>
+          <th onclick="sortPct('pAg')">% Aguinaldo ↕</th>
+          <th onclick="sortPct('pPrev')">% Preaviso ↕</th>
+          <th onclick="sortPct('pIndem')">% Indemn. ↕</th>
+          <th onclick="sortPct('pVac')">% Vacaciones ↕</th>
+          <th onclick="sortPct('pTotal')" style="color:var(--acc)">% Total ↕</th>
+        </tr></thead>
+        <tbody id="tblPctBody"></tbody>
+        <tfoot id="tblPctFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 6: GRÁFICOS -->
+<div class="pane" id="pane-graficos">
+  <div class="filters">
+    <label>Sucursal:</label>
+    <select class="fsel" id="gfSuc" onchange="renderGraficos()"><option value="">Todas</option></select>
+    <label>Estado:</label>
+    <select class="fsel" id="gfEstado" onchange="renderGraficos()">
+      <option value="">Todos</option>
+      <option value="activo">Activos</option>
+      <option value="inactivo">Inactivos</option>
+    </select>
+    <label>Género:</label>
+    <select class="fsel" id="gfGen" onchange="renderGraficos()">
+      <option value="">Todos</option>
+      <option value="Masculino">Masculino</option>
+      <option value="Femenino">Femenino</option>
+    </select>
+    <label>Antigüedad:</label>
+    <select class="fsel" id="gfAntig" onchange="renderGraficos()">
+      <option value="">Todas</option>
+      <option value="0-1">0–11 meses</option>
+      <option value="1-3">1–3 años</option>
+      <option value="3-5">3–5 años</option>
+      <option value="5-10">5–10 años</option>
+      <option value="10+">10+ años</option>
+    </select>
+    <label>Vista:</label>
+    <select class="fsel" id="gfVista" onchange="renderGraficos()">
+      <option value="costos">Costos por Sucursal</option>
+      <option value="composicion">Composición del Costo</option>
+      <option value="genero">Distribución Género</option>
+      <option value="antiguedad">Distribución Antigüedad</option>
+      <option value="comisiones">Top Comisiones</option>
+    </select>
+  </div>
+  <div class="cnt" id="gf-cnt"></div>
+  <div class="g2">
+    <div class="card"><div class="ct" id="gf-title1">—</div><div class="chart-wrap"><canvas id="chart1"></canvas></div></div>
+    <div class="card"><div class="ct" id="gf-title2">—</div><div class="chart-wrap"><canvas id="chart2"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-bottom:18px"><div class="ct" id="gf-title3">—</div><div class="chart-wrap" style="height:220px"><canvas id="chart3"></canvas></div></div>
+</div>
+
+<script>
+// ============================================================
+// DATA: ACTIVOS
+// ============================================================
+const ACTIVOS = [
+  {n:"Rios Gonzalez, Teofila",gen:"Femenino",ing:"2021-02-15",suc:"Gerencia",estado:"activo",base:3500000,sal:0,cv:0,cc:0,b:0,aus:0,ipe:315000,ipp:577500,ag:291667,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Sosa Cikel, Armando",gen:"Masculino",ing:"2005-12-12",suc:"Sucursal 3",estado:"activo",base:3296703,sal:0,cv:6604539,cc:0,b:101409,aus:0,ipe:296703,ipp:1650437,ag:833554,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Villalba Semidei, Adriana",gen:"Femenino",ing:"1998-03-02",suc:"Sucursal 3",estado:"activo",base:2899048,sal:0,cv:2446304,cc:0,b:6796,aus:0,ipe:260914,ipp:883105,ag:446012,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gonzalez Duarte, Mario",gen:"Masculino",ing:"2013-07-09",suc:"Sucursal 7",estado:"activo",base:3296703,sal:0,cv:7448440,cc:0,b:46894,aus:0,ipe:296703,ipp:1780686,ag:899336,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Sanabria Vargas, Hugo",gen:"Masculino",ing:"2002-02-01",suc:"Ventas Externas",estado:"activo",base:3296703,sal:0,cv:5663188,cc:0,b:205231,aus:0,ipe:296703,ipp:1512245,ag:763760,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ferreira, Jose Ignacio",gen:"Masculino",ing:"2014-02-14",suc:"IT",estado:"activo",base:9890110,sal:0,cv:0,cc:0,b:0,aus:0,ipe:890110,ipp:1631868,ag:824176,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Caceres Zayas, Diego Raul",gen:"Masculino",ing:"2005-07-05",suc:"Sucursal 4",estado:"activo",base:3296703,sal:0,cv:10703975,cc:0,b:353355,aus:0,ipe:296703,ipp:2368415,ag:1196169,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Benitez Martinez, Jorge",gen:"Masculino",ing:"1999-03-02",suc:"Sucursal 1",estado:"activo",base:3296703,sal:0,cv:9249190,cc:0,b:1123780,aus:0,ipe:296703,ipp:2255496,ag:1139139,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Balbuena Jara, Silvio",gen:"Masculino",ing:"2015-06-15",suc:"Casa Central",estado:"activo",base:2899048,sal:0,cv:4289958,cc:0,b:14963,aus:-96635,ipe:252217,ipp:1172710,ag:592277,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Leguizamon, Onofre",gen:"Masculino",ing:"2014-09-01",suc:"Casa Central",estado:"activo",base:3296703,sal:0,cv:7355755,cc:0,b:112311,aus:0,ipe:296703,ipp:1776187,ag:897064,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Asilvera, Marilda",gen:"Femenino",ing:"2021-02-15",suc:"Gerencia",estado:"activo",base:3500000,sal:0,cv:0,cc:0,b:0,aus:0,ipe:315000,ipp:577500,ag:291667,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Vargas Martinez, Cesar",gen:"Masculino",ing:"2020-08-22",suc:"Ventas Externas",estado:"activo",base:7692308,sal:0,cv:3474142,cc:0,b:0,aus:0,ipe:692308,ipp:1842464,ag:930538,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Aguero Benitez, Carlos",gen:"Masculino",ing:"2010-10-01",suc:"Sucursal 2",estado:"activo",base:3296703,sal:0,cv:4072063,cc:0,b:81789,aus:0,ipe:296703,ipp:1229342,ag:620879,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gonzalez Barboza, Cristhian",gen:"Masculino",ing:"2015-04-18",suc:"Sucursal 6",estado:"activo",base:3296703,sal:0,cv:6769945,cc:0,b:183502,aus:0,ipe:296703,ipp:1691275,ag:854179,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Silva Lezcano, Diego",gen:"Masculino",ing:"2015-09-22",suc:"Sucursal 5",estado:"activo",base:3296703,sal:0,cv:7125122,cc:0,b:356519,aus:0,ipe:296703,ipp:1778427,ag:898195,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Canete Chavez, Francisco",gen:"Masculino",ing:"2016-06-22",suc:"Sucursal 2",estado:"activo",base:2899048,sal:0,cv:2267248,cc:0,b:106625,aus:0,ipe:260914,ipp:870032,ag:439410,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rivas Aquino, Angel",gen:"Masculino",ing:"2016-06-30",suc:"Logística",estado:"activo",base:8791209,sal:0,cv:0,cc:0,b:0,aus:0,ipe:791209,ipp:1450549,ag:732601,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Caballero Esteche, Cristobal",gen:"Masculino",ing:"2016-12-16",suc:"Sucursal 5",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Visconte Sosa, Aurelio",gen:"Masculino",ing:"2017-06-19",suc:"Sucursal 1",estado:"activo",base:2899048,sal:0,cv:3384074,cc:0,b:93794,aus:0,ipe:260914,ipp:1052191,ag:531409,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Sepulveda Caballero, Mateo",gen:"Masculino",ing:"2017-08-07",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:5014104,cc:0,b:296253,aus:0,ipe:260914,ipp:1354552,ag:684117,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ruiz Diaz, Jorge Manuel",gen:"Masculino",ing:"2017-09-01",suc:"Créditos y Cobranzas",estado:"activo",base:3000000,sal:0,cv:0,cc:4359293,b:0,aus:0,ipe:270000,ipp:1214283,ag:613274,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Barreto Barrios, Miguel",gen:"Masculino",ing:"2019-05-16",suc:"Sucursal 9",estado:"activo",base:3296703,sal:0,cv:4400000,cc:0,b:0,aus:0,ipe:296703,ipp:1269956,ag:641392,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Aguayo Benitez, Oscar",gen:"Masculino",ing:"2019-11-12",suc:"Sucursal 7",estado:"activo",base:2899048,sal:0,cv:2378041,cc:0,b:371356,aus:0,ipe:260914,ipp:931994,ag:470703,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ferreira, Emilse Rosana",gen:"Femenino",ing:"2021-02-15",suc:"Administración",estado:"activo",base:3298309,sal:0,cv:0,cc:0,b:0,aus:0,ipe:296848,ipp:544221,ag:274859,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Benegas Servin, Mauro",gen:"Masculino",ing:"2020-01-02",suc:"Logística",estado:"activo",base:3516484,sal:0,cv:0,cc:0,b:800000,aus:0,ipe:316484,ipp:712220,ag:359707,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Benegas Servin, Sergio",gen:"Masculino",ing:"2020-01-09",suc:"Sucursal 3",estado:"activo",base:3076923,sal:0,cv:0,cc:0,b:0,aus:0,ipe:276923,ipp:507692,ag:256410,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Lopez Gonzalez, Jorge",gen:"Masculino",ing:"2020-01-10",suc:"Sucursal 3",estado:"activo",base:2899048,sal:0,cv:2030084,cc:0,b:134073,aus:0,ipe:260914,ipp:835429,ag:421933,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Villalba Centurion, Juan",gen:"Masculino",ing:"2020-08-22",suc:"Sucursal 5",estado:"activo",base:2899048,sal:0,cv:2085191,cc:0,b:56484,aus:0,ipe:260914,ipp:831719,ag:420060,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Moreno Chavez, Diego",gen:"Masculino",ing:"2020-09-08",suc:"Sucursal 5",estado:"activo",base:2967033,sal:0,cv:0,cc:0,b:0,aus:0,ipe:267033,ipp:489560,ag:247253,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Caballero Florenciani, Jonathan",gen:"Masculino",ing:"2020-09-01",suc:"Sucursal 7",estado:"activo",base:2899048,sal:0,cv:3001464,cc:0,b:18827,aus:0,ipe:260914,ipp:976691,ag:493278,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ayala Rodriguez, Rodrigo",gen:"Masculino",ing:"2020-10-19",suc:"Casa Central",estado:"activo",base:2899048,sal:0,cv:2588219,cc:0,b:26019,aus:0,ipe:260914,ipp:909692,ag:459440,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Franco Tonanez, Pablo",gen:"Masculino",ing:"2020-11-02",suc:"Sucursal 1",estado:"activo",base:2899048,sal:0,cv:3724146,cc:0,b:138508,aus:0,ipe:260914,ipp:1115681,ag:563475,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ramirez Sanchez, Gonzalo",gen:"Masculino",ing:"2021-03-15",suc:"Sucursal 2",estado:"activo",base:2899048,sal:0,cv:1340614,cc:0,b:0,aus:0,ipe:260914,ipp:699544,ag:353305,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Nunez Lopez, Crispin",gen:"Masculino",ing:"2021-04-10",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:3792185,cc:0,b:73135,aus:0,ipe:260914,ipp:1116121,ag:563697,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Barreto Saucedo, Marco",gen:"Masculino",ing:"2021-05-26",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:3098619,cc:0,b:14663,aus:0,ipe:260914,ipp:992035,ag:501027,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"De la Sierra, Isidro",gen:"Masculino",ing:"2021-07-05",suc:"E-commerce",estado:"activo",base:2899048,sal:0,cv:1178966,cc:0,b:0,aus:0,ipe:260914,ipp:672872,ag:339834,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Soto Dominguez, Rene",gen:"Masculino",ing:"2016-06-30",suc:"Sucursal 5",estado:"activo",base:2899048,sal:0,cv:2397303,cc:0,b:282452,aus:0,ipe:260914,ipp:920503,ag:464900,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Garay Dominguez, Rocio",gen:"Femenino",ing:"2022-01-03",suc:"RRHH",estado:"activo",base:14835165,sal:0,cv:0,cc:0,b:0,aus:0,ipe:1335165,ipp:2447802,ag:1236264,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gonzalez Vera, Isaias",gen:"Masculino",ing:"2022-02-01",suc:"Sucursal 6",estado:"activo",base:2899048,sal:0,cv:2860030,cc:0,b:140601,aus:0,ipe:260914,ipp:973447,ag:491640,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Lopez Galeano, Luis",gen:"Masculino",ing:"2022-02-07",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Medina Burgos, Carlos",gen:"Masculino",ing:"2022-05-20",suc:"Sucursal 6",estado:"activo",base:2899048,sal:0,cv:2326580,cc:0,b:6950,aus:0,ipe:260914,ipp:863375,ag:436048,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Galeano Ramirez, Oscar",gen:"Masculino",ing:"2022-07-11",suc:"Gerencia",estado:"activo",base:0,sal:35000000,cv:0,cc:0,b:0,aus:0,ipe:0,ipp:0,ag:0,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ortiz Garcete, Ulises",gen:"Masculino",ing:"2022-08-25",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ortega Mendoza, Derlis",gen:"Masculino",ing:"2022-09-26",suc:"Sucursal 1",estado:"activo",base:2899048,sal:0,cv:2214001,cc:0,b:58090,aus:-96635,ipe:252217,ipp:837293,ag:422875,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Vega Gonzalez, Nahuel",gen:"Masculino",ing:"2022-09-01",suc:"Casa Central",estado:"activo",base:2899048,sal:0,cv:2595842,cc:0,b:396205,aus:0,ipe:260914,ipp:972031,ag:490924,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Otazo Rojas, Juan Carlos",gen:"Masculino",ing:"2022-09-01",suc:"Sucursal 6",estado:"activo",base:2967032,sal:0,cv:125173,cc:0,b:0,aus:0,ipe:267033,ipp:510214,ag:257684,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gonzalez Lugo, Oscar",gen:"Masculino",ing:"2022-09-26",suc:"Sucursal 8",estado:"activo",base:3296703,sal:0,cv:4677173,cc:0,b:128172,aus:0,ipe:296703,ipp:1336838,ag:675170,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rojas Morinigo, Alexis",gen:"Masculino",ing:"2022-09-05",suc:"Auditoría Interna",estado:"activo",base:9890110,sal:0,cv:0,cc:0,b:0,aus:0,ipe:890110,ipp:1631868,ag:824176,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Benitez Franco, Cristian",gen:"Masculino",ing:"2022-10-25",suc:"Sucursal 9",estado:"activo",base:2899048,sal:0,cv:922934,cc:0,b:0,aus:0,ipe:260914,ipp:630627,ag:318498,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Yudiz Rolon, Rodrigo",gen:"Masculino",ing:"2022-10-19",suc:"Auditoría Interna",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:1000000,aus:0,ipe:260914,ipp:643343,ag:324920,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Alonso Azuaga, Jonas",gen:"Masculino",ing:"2022-11-02",suc:"Sucursal 6",estado:"activo",base:2899048,sal:0,cv:3944853,cc:0,b:82703,aus:0,ipe:260914,ipp:1142890,ag:577217,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Escobar Arevalo, Luis",gen:"Masculino",ing:"2023-01-13",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:1000000,aus:0,ipe:260914,ipp:643343,ag:324920,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Cabrera Doldan, Ever",gen:"Masculino",ing:"2023-02-01",suc:"Casa Central",estado:"activo",base:2899048,sal:0,cv:2365505,cc:0,b:154402,aus:0,ipe:260914,ipp:894128,ag:451579,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Avalos Armoa, Ricardo",gen:"Masculino",ing:"2023-07-01",suc:"Sucursal 3",estado:"activo",base:2899048,sal:0,cv:1955971,cc:0,b:169875,aus:0,ipe:260914,ipp:829108,ag:418741,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Ramirez Saldivar, Marcos",gen:"Masculino",ing:"2023-09-18",suc:"IT",estado:"activo",base:6043956,sal:0,cv:0,cc:0,b:0,aus:0,ipe:543956,ipp:997253,ag:503663,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rodriguez Ayala, Juan Diego",gen:"Masculino",ing:"2023-10-21",suc:"Sucursal 8",estado:"activo",base:2899048,sal:0,cv:444572,cc:0,b:0,aus:0,ipe:260914,ipp:551697,ag:278635,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rivera Peloso, Abraham",gen:"Masculino",ing:"2023-12-02",suc:"Sucursal 1",estado:"activo",base:2899048,sal:0,cv:3056790,cc:0,b:356302,aus:0,ipe:260914,ipp:1041503,ag:526011,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Barrios Quintero, Julio",gen:"Masculino",ing:"2023-12-11",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Caceres Riveros, Pedro",gen:"Masculino",ing:"2023-12-02",suc:"Casa Central",estado:"activo",base:2967032,sal:0,cv:0,cc:0,b:0,aus:0,ipe:267033,ipp:489560,ag:247253,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gomez Colman, Jhonny",gen:"Masculino",ing:"2024-01-18",suc:"Sucursal 2",estado:"activo",base:2967032,sal:0,cv:0,cc:0,b:0,aus:0,ipe:267033,ipp:489560,ag:247253,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rodriguez Galeano, Jorge",gen:"Masculino",ing:"2024-02-20",suc:"Sucursal 2",estado:"activo",base:2899048,sal:0,cv:1258904,cc:0,b:0,aus:0,ipe:260914,ipp:686062,ag:346496,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Miranda Vazquez, Juan Carlos",gen:"Masculino",ing:"2024-04-22",suc:"Sucursal 8",estado:"activo",base:1739429,sal:0,cv:1989487,cc:0,b:98268,aus:0,ipe:260914,ipp:822823,ag:415567,prev:0,vacc:1159619,vacp:0,indem:0},
+  {n:"Cotrofe Bueno, Milagros",gen:"Femenino",ing:"2024-07-08",suc:"Sucursal 5",estado:"activo",base:2899048,sal:0,cv:2041349,cc:0,b:0,aus:0,ipe:260914,ipp:815166,ag:411699,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Unzain Frohlich, Nahiara",gen:"Femenino",ing:"2024-08-01",suc:"Sucursal 8",estado:"activo",base:2609143,sal:0,cv:649754,cc:0,b:0,aus:0,ipe:1017566,ipp:1972747,ag:0,prev:676445,vacc:4348572,vacp:773079,indem:2899048},
+  {n:"Arrua Gonzalez, Severiano",gen:"Masculino",ing:"2024-09-16",suc:"Ventas Externas",estado:"activo",base:2899048,sal:0,cv:4000000,cc:0,b:0,aus:0,ipe:260914,ipp:1138343,ag:574920,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gomez Villalba, Walter",gen:"Masculino",ing:"2024-10-29",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:-386540,ipe:226126,ipp:497064,ag:251043,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Mastropasqua, Javier",gen:"Masculino",ing:"2024-11-06",suc:"Marketing",estado:"activo",base:6500000,sal:0,cv:0,cc:0,b:0,aus:0,ipe:585000,ipp:1072500,ag:541667,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Meza Valenzuela, Armando",gen:"Masculino",ing:"2024-11-01",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Bareiro Delgado, Nestor",gen:"Masculino",ing:"2024-11-06",suc:"Casa Central",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Coronel Martinez, Tamara",gen:"Femenino",ing:"2025-01-08",suc:"Sucursal 7",estado:"activo",base:2899048,sal:0,cv:1924281,cc:0,b:0,aus:0,ipe:260914,ipp:795849,ag:401944,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Morel Dominguez, Jorge",gen:"Masculino",ing:"2025-02-14",suc:"Sucursal 9",estado:"activo",base:2899048,sal:0,cv:675916,cc:0,b:0,aus:0,ipe:260914,ipp:589869,ag:297913,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Garcia Cubilla, Juan Manuel",gen:"Masculino",ing:"2025-03-22",suc:"Sucursal 7",estado:"activo",base:2899048,sal:0,cv:1786711,cc:0,b:0,aus:0,ipe:260914,ipp:773150,ag:390480,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Alarcon Santander, Maria",gen:"Femenino",ing:"2025-06-09",suc:"Administración",estado:"activo",base:4945055,sal:0,cv:0,cc:0,b:0,aus:0,ipe:445055,ipp:815934,ag:412088,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gonzalez Pizurno, Cesar",gen:"Masculino",ing:"2025-07-14",suc:"Sucursal 7",estado:"activo",base:2967032,sal:0,cv:0,cc:0,b:0,aus:0,ipe:267033,ipp:489560,ag:247253,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Estigarribia Villatte, Victor",gen:"Masculino",ing:"2025-08-11",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Loreiro, Wilfrido",gen:"Masculino",ing:"2025-09-01",suc:"Ventas Externas",estado:"activo",base:2899048,sal:0,cv:2046007,cc:0,b:0,aus:0,ipe:260914,ipp:815934,ag:412088,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Amarilla Garcete, Jose Carlos",gen:"Masculino",ing:"2025-10-10",suc:"Logística",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gimenez Martinez, Yanina",gen:"Femenino",ing:"2025-10-27",suc:"Marketing",estado:"activo",base:9890110,sal:0,cv:0,cc:0,b:0,aus:0,ipe:890110,ipp:1631868,ag:824176,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Recalde Recalde, Jacqueline",gen:"Femenino",ing:"2025-11-24",suc:"RRHH",estado:"activo",base:4945055,sal:0,cv:0,cc:0,b:0,aus:0,ipe:445055,ipp:815934,ag:412088,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rojas Flores, Anibal",gen:"Masculino",ing:"2025-11-06",suc:"Sucursal 9",estado:"activo",base:2899048,sal:0,cv:662972,cc:0,b:0,aus:0,ipe:260914,ipp:587733,ag:296835,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Pacua Vera, Leandro",gen:"Masculino",ing:"2025-11-01",suc:"Sucursal 1",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Pestana Caceres, Tobyas",gen:"Masculino",ing:"2025-12-09",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:1768217,cc:0,b:66976,aus:-96635,ipe:252217,ipp:765205,ag:386467,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Paredes Valdez, Junior",gen:"Masculino",ing:"2026-01-02",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:500000,aus:0,ipe:260914,ipp:560843,ag:283254,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Dominguez Gonzalez, Laura",gen:"Femenino",ing:"2026-02-05",suc:"E-commerce",estado:"activo",base:2899048,sal:0,cv:2151418,cc:0,b:326293,aus:0,ipe:260914,ipp:887165,ag:448063,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Amarilla Gonzalez, Alberto",gen:"Masculino",ing:"2026-02-17",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Limberger Limberger, Luis",gen:"Masculino",ing:"2026-03-03",suc:"Sucursal 9",estado:"activo",base:2899048,sal:0,cv:395770,cc:0,b:0,aus:0,ipe:260914,ipp:543645,ag:274568,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Franco Rolon, Rosalino",gen:"Masculino",ing:"2026-03-03",suc:"Sucursal 8",estado:"activo",base:2899048,sal:0,cv:926652,cc:0,b:0,aus:0,ipe:260914,ipp:631241,ag:318808,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Noguera, Carlos Daniel",gen:"Masculino",ing:"2026-03-10",suc:"Sucursal 3",estado:"activo",base:2899048,sal:0,cv:1029479,cc:0,b:0,aus:0,ipe:260914,ipp:648207,ag:327377,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Montenegro Britez, Tobias",gen:"Masculino",ing:"2026-03-20",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:-96635,ipe:252217,ipp:462398,ag:233534,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Duarte Ferreira, Edgar",gen:"Masculino",ing:"2026-03-23",suc:"Sucursal 4",estado:"activo",base:3000000,sal:0,cv:0,cc:0,b:0,aus:0,ipe:270000,ipp:495000,ag:250000,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Cardenas Rojas, Diego",gen:"Masculino",ing:"2026-03-23",suc:"Sucursal 4",estado:"activo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Aguiar Ocampos, Sinecio",gen:"Masculino",ing:"2026-03-03",suc:"Gerencia",estado:"activo",base:0,sal:10000000,cv:0,cc:0,b:0,aus:0,ipe:0,ipp:0,ag:0,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Vargas Nunez, Jose",gen:"Masculino",ing:"2026-03-27",suc:"Sucursal 1",estado:"activo",base:2967032,sal:0,cv:0,cc:0,b:0,aus:0,ipe:267033,ipp:489560,ag:247253,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Bogado Aveiro, Hilda",gen:"Femenino",ing:"2026-04-27",suc:"Sucursal 2",estado:"activo",base:386540,sal:0,cv:66895,cc:0,b:0,aus:0,ipe:34789,ipp:74817,ag:37787,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Rodas Alves, Carlos",gen:"Masculino",ing:"2026-04-28",suc:"Sucursal 8",estado:"activo",base:289905,sal:0,cv:0,cc:0,b:0,aus:0,ipe:26091,ipp:47834,ag:24159,prev:0,vacc:0,vacp:0,indem:0},
+];
+
+// DATA: INACTIVOS (último período conocido)
+const INACTIVOS = [
+  {n:"Caballero Esteche, Cristobal",gen:"Masculino",ing:"2016-12-16",suc:"Sucursal 5",estado:"inactivo",base:2899048,sal:0,cv:0,cc:0,b:0,aus:0,ipe:260914,ipp:478343,ag:241587,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Aguayo, Sergio",gen:"Masculino",ing:"2020-08-22",suc:"Sucursal 6",estado:"inactivo",base:3296703,sal:0,cv:0,cc:0,b:0,aus:0,ipe:296703,ipp:543756,ag:274593,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Godoy Gauto, Diego",gen:"Masculino",ing:"2014-09-01",suc:"Logística",estado:"inactivo",base:2289324,sal:0,cv:0,cc:0,b:0,aus:0,ipe:206039,ipp:377739,ag:190777,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Galan Mareco, Bryan",gen:"Masculino",ing:"2018-02-12",suc:"IT",estado:"inactivo",base:2857142,sal:0,cv:0,cc:0,b:0,aus:0,ipe:257143,ipp:471428,ag:238095,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Martinez, Marcelo",gen:"Masculino",ing:"2017-04-20",suc:"Sucursal 9",estado:"inactivo",base:3296703,sal:0,cv:0,cc:0,b:0,aus:0,ipe:296703,ipp:543756,ag:274593,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Martinez Ayala, Sergio",gen:"Masculino",ing:"2017-09-01",suc:"Casa Central",estado:"inactivo",base:2197802,sal:0,cv:0,cc:0,b:0,aus:0,ipe:197802,ipp:362637,ag:183150,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Caballero Florenciani, Sebastian",gen:"Masculino",ing:"2020-02-10",suc:"Sucursal 8",estado:"inactivo",base:3296703,sal:0,cv:0,cc:0,b:0,aus:0,ipe:296703,ipp:543756,ag:274593,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Silvero Gomez, Emilio",gen:"Masculino",ing:"2020-03-09",suc:"Sucursal 6",estado:"inactivo",base:2192967,sal:0,cv:0,cc:0,b:0,aus:0,ipe:197367,ipp:361839,ag:182747,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Montiel Gonzalez, Narciso",gen:"Masculino",ing:"2021-05-03",suc:"Logística",estado:"inactivo",base:10980110,sal:0,cv:0,cc:0,b:0,aus:0,ipe:988209,ipp:1811718,ag:915009,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Gaona Galeano, Maryan",gen:"Femenino",ing:"2023-06-13",suc:"Marketing",estado:"inactivo",base:0,sal:0,cv:0,cc:0,b:0,aus:0,ipe:0,ipp:0,ag:0,prev:0,vacc:0,vacp:0,indem:0},
+  {n:"Unzain Frohlich, Nahiara",gen:"Femenino",ing:"2024-08-01",suc:"Sucursal 8",estado:"inactivo",base:2609143,sal:0,cv:649754,cc:0,b:0,aus:0,ipe:1017566,ipp:1972747,ag:0,prev:676445,vacc:4348572,vacp:773079,indem:2899048},
+  {n:"Espinola Molinas, Erin",gen:"Femenino",ing:"2024-09-17",suc:"Marketing",estado:"inactivo",base:13186813,sal:0,cv:0,cc:0,b:0,aus:0,ipe:1186813,ipp:2175824,ag:1098901,prev:0,vacc:0,vacp:0,indem:0},
+];
+
+const HOY = new Date("2026-04-30");
+const ALL = [...ACTIVOS, ...INACTIVOS];
+ALL.forEach(d => {
+  d.sbase = d.base || d.sal || 0;
+  d.costo = d.sbase + d.cv + d.cc + d.b + d.ipp + d.ag + d.prev + (d.vacc||0) + (d.vacp||0) + d.indem;
+  const ing = new Date(d.ing);
+  d.antig = (HOY - ing) / (1000*60*60*24*365.25);
+});
+
+// Poblar filtros de sucursal
+const SUCS = [...new Set(ALL.map(d=>d.suc))].sort();
+['fSucursal','gfSuc'].forEach(id=>{
+  const sel=document.getElementById(id);
+  SUCS.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
+});
+
+// Helpers
+function f(n){if(!n||n===0)return '-';if(n>=1000000)return '₲'+(n/1000000).toFixed(1)+'M';if(n>=1000)return '₲'+(n/1000).toFixed(0)+'K';return '₲'+n.toLocaleString();}
+function fp(v){return v>0?v.toFixed(1)+'%':'-';}
+function fa(a){const y=Math.floor(a);const m=Math.floor((a-y)*12);if(y===0)return m<=1?m+' mes':m+' meses';if(m===0)return y+(y===1?' año':' años');return y+(y===1?' año':' años')+' '+m+(m===1?' mes':' meses');}
+function antigFilter(a,v){if(!v)return true;if(v==='0-1')return a<1;if(v==='1-3')return a>=1&&a<3;if(v==='3-5')return a>=3&&a<5;if(v==='5-10')return a>=5&&a<10;if(v==='10+')return a>=10;return true;}
+
+// ============================================================
+// TAB 1: RESUMEN (solo activos)
+// ============================================================
+const ACT = ACTIVOS;
+document.getElementById('kpi-total').textContent=ACT.length;
+document.getElementById('kpi-masa').textContent=f(ACT.reduce((a,d)=>a+d.sbase,0));
+document.getElementById('kpi-com').textContent=f(ACT.reduce((a,d)=>a+d.cv+d.cc,0));
+document.getElementById('kpi-ips').textContent=f(ACT.reduce((a,d)=>a+d.ipp,0));
+
+const topC=[...ACT].filter(d=>d.cv>0).sort((a,b)=>b.cv-a.cv).slice(0,8);
+const mxC=topC[0].cv;
+document.getElementById('barCom').innerHTML=topC.map(d=>`<div class="br"><div class="bn">${d.n.split(',')[0]}</div><div class="bt"><div class="bf" style="width:${(d.cv/mxC*100).toFixed(1)}%"></div></div><div class="bv">${f(d.cv)}</div></div>`).join('');
+
+const bands=[{l:'<3M',c:'#4ecdc4',n:0},{l:'3-5M',c:'#e8c547',n:0},{l:'5-10M',c:'#ff9f43',n:0},{l:'>10M',c:'#ff6b6b',n:0}];
+ACT.forEach(d=>{const s=d.sbase;if(s<3000000)bands[0].n++;else if(s<5000000)bands[1].n++;else if(s<10000000)bands[2].n++;else if(s>0)bands[3].n++;});
+const tot=bands.reduce((a,b)=>a+b.n,0);
+const cx=65,cy=65,r=50,sw=13;let sa=-Math.PI/2,pp='';
+bands.forEach(b=>{const ang=(b.n/tot)*2*Math.PI;const x1=cx+r*Math.cos(sa),y1=cy+r*Math.sin(sa);const ea=sa+ang;const x2=cx+r*Math.cos(ea),y2=cy+r*Math.sin(ea);pp+=`<path d="M${x1} ${y1}A${r} ${r} 0 ${ang>Math.PI?1:0} 1 ${x2} ${y2}" fill="none" stroke="${b.c}" stroke-width="${sw}"/>`;sa=ea;});
+document.getElementById('donut').innerHTML=`<div class="dw"><svg width="130" height="130" viewBox="0 0 130 130"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef0f5" stroke-width="${sw}"/>${pp}<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#1a1d29" font-family="DM Serif Display,serif" font-size="20">${tot}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#6b7180" font-size="9">activos</text></svg><div>${bands.map(b=>`<div class="li"><div class="ld" style="background:${b.c}"></div><div class="ll">${b.l}</div><div class="lv">${b.n}</div></div>`).join('')}</div></div>`;
+
+const gM=ACT.filter(d=>d.gen==='Masculino').length,gF=ACT.filter(d=>d.gen==='Femenino').length,gT=gM+gF;
+const gB=[{l:'Masculino',c:'#4ecdc4',n:gM},{l:'Femenino',c:'#ff9f43',n:gF}];
+let sa2=-Math.PI/2,pp2='';
+gB.forEach(b=>{const ang=(b.n/gT)*2*Math.PI;const x1=cx+r*Math.cos(sa2),y1=cy+r*Math.sin(sa2);const ea=sa2+ang;const x2=cx+r*Math.cos(ea),y2=cy+r*Math.sin(ea);pp2+=`<path d="M${x1} ${y1}A${r} ${r} 0 ${ang>Math.PI?1:0} 1 ${x2} ${y2}" fill="none" stroke="${b.c}" stroke-width="${sw}"/>`;sa2=ea;});
+document.getElementById('donut-gen').innerHTML=`<div class="dw"><svg width="130" height="130" viewBox="0 0 130 130"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef0f5" stroke-width="${sw}"/>${pp2}<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#1a1d29" font-family="DM Serif Display,serif" font-size="20">${gT}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#6b7180" font-size="9">total</text></svg><div>${gB.map(b=>`<div class="li"><div class="ld" style="background:${b.c}"></div><div class="ll">${b.l}</div><div class="lv">${b.n} (${(b.n/gT*100).toFixed(0)}%)</div></div>`).join('')}</div></div>`;
+
+const antB=[{l:'<1 año',min:0,max:1},{l:'1-3 años',min:1,max:3},{l:'3-5 años',min:3,max:5},{l:'5-10 años',min:5,max:10},{l:'10+ años',min:10,max:999}];
+const antD=antB.map(b=>({l:b.l,n:ACT.filter(d=>d.antig>=b.min&&d.antig<b.max).length}));
+const mxA=Math.max(...antD.map(d=>d.n));
+document.getElementById('bar-ant').innerHTML=antD.map(d=>`<div class="br"><div class="bn" style="width:90px">${d.l}</div><div class="bt"><div class="bf" style="width:${(d.n/mxA*100).toFixed(1)}%;background:var(--teal)"></div></div><div class="bv">${d.n} emp.</div></div>`).join('');
+
+const tB=ACT.reduce((a,d)=>a+d.sbase,0),tCV=ACT.reduce((a,d)=>a+d.cv,0),tCC=ACT.reduce((a,d)=>a+d.cc,0),tBon=ACT.reduce((a,d)=>a+d.b,0),tIPS=ACT.reduce((a,d)=>a+d.ipp,0),tAg=ACT.reduce((a,d)=>a+d.ag,0);
+const gran=tB+tCV+tCC+tBon+tIPS+tAg;
+[{l:'Salarios',v:tB,c:'var(--acc)'},{l:'Com. Ventas',v:tCV,c:'var(--teal)'},{l:'IPS Patronal',v:tIPS,c:'var(--red)'},{l:'Aguinaldo',v:tAg,c:'var(--pur)'},{l:'Bonos',v:tBon,c:'var(--ora)'},{l:'Com. Cobr.',v:tCC,c:'#fd79a8'}].forEach(it=>{
+  document.getElementById('estructura').innerHTML+= `<div class="br"><div class="bn" style="width:100px">${it.l}</div><div class="bt"><div class="bf" style="width:${(it.v/gran*100).toFixed(1)}%;background:${it.c}"></div></div><div class="bv">${(it.v/gran*100).toFixed(1)}%</div></div>`;
+});
+
+const aus=ACT.filter(d=>d.aus<0).sort((a,b)=>a.aus-b.aus);
+document.getElementById('aus-cnt').textContent=aus.length;
+document.getElementById('aus-tot').textContent=f(Math.abs(aus.reduce((a,d)=>a+d.aus,0)));
+document.getElementById('ausencias').innerHTML=aus.map(d=>`<div class="br"><div class="bn" style="width:170px">${d.n}</div><div style="color:var(--red);font-size:11px">${f(Math.abs(d.aus))}</div></div>`).join('');
+
+const topB=[...ACT].filter(d=>d.b>0).sort((a,b)=>b.b-a.b).slice(0,6);
+document.getElementById('bon-cnt').textContent=ACT.filter(d=>d.b>0).length;
+document.getElementById('bon-tot').textContent=f(ACT.reduce((a,d)=>a+d.b,0));
+if(topB.length){const mxB=topB[0].b;document.getElementById('bonosTop').innerHTML=topB.map(d=>`<div class="br"><div class="bn">${d.n.split(',')[0]}</div><div class="bt"><div class="bf" style="width:${(d.b/mxB*100).toFixed(1)}%"></div></div><div class="bv">${f(d.b)}</div></div>`).join('');}
+
+// ============================================================
+// TAB 2: NÓMINA COMPLETA
+// ============================================================
+let sortCol='costo',sortDir=-1;
+function sortNomina(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}renderNomina();}
+
+function renderNomina(){
+  const es=document.getElementById('fEstado').value;
+  const su=document.getElementById('fSucursal').value;
+  const g=document.getElementById('fGenero').value;
+  const a=document.getElementById('fAntig').value;
+  const e=document.getElementById('fEgreso').value;
+  const s=document.getElementById('fSearch').value.toLowerCase();
+  let rows=[...ALL].filter(d=>{
+    if(es&&d.estado!==es)return false;
+    if(su&&d.suc!==su)return false;
+    if(g&&d.gen!==g)return false;
+    if(a&&!antigFilter(d.antig,a))return false;
+    if(e==='preaviso'&&d.prev<=0)return false;
+    if(e==='indemnizacion'&&d.indem<=0)return false;
+    if(e==='vacaciones'&&(d.vacc||0)+(d.vacp||0)<=0)return false;
+    if(s&&!d.n.toLowerCase().includes(s))return false;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    let av=a[sortCol],bv=b[sortCol];
+    if(sortCol==='n')av=a.n,bv=b.n;
+    if(sortCol==='estado')av=a.estado,bv=b.estado;
+    if(sortCol==='suc')av=a.suc,bv=b.suc;
+    if(sortCol==='gen')av=a.gen,bv=b.gen;
+    if(sortCol==='antig')av=a.antig,bv=b.antig;
+    if(sortCol==='aus')av=Math.abs(a.aus||0),bv=Math.abs(b.aus||0);
+    if(typeof av==='string')return av.localeCompare(bv)*sortDir;
+    return ((av||0)-(bv||0))*sortDir;
+  });
+  document.getElementById('nomina-cnt').textContent=`Mostrando ${rows.length} de ${ALL.length} empleados`;
+  document.getElementById('tblBody').innerHTML=rows.map(d=>`<tr>
+    <td style="font-weight:500">${d.n}</td>
+    <td><span class="chip ${d.estado==='activo'?'cg':'cr'}">${d.estado==='activo'?'Activo':'Inactivo'}</span></td>
+    <td style="color:var(--muted);font-size:11px">${d.suc}</td>
+    <td><span class="chip ${d.gen==='Masculino'?'ct2':'co'}">${d.gen==='Masculino'?'M':'F'}</span></td>
+    <td style="color:var(--muted);font-size:11px">${fa(d.antig)}</td>
+    <td>${f(d.sbase)}</td>
+    <td style="color:var(--teal)">${d.cv>0?f(d.cv):'-'}</td>
+    <td style="color:var(--acc)">${d.b>0?f(d.b):'-'}</td>
+    <td style="color:var(--red)">${d.aus<0?f(Math.abs(d.aus)):'-'}</td>
+    <td style="color:var(--pur)">${d.prev>0?f(d.prev):'-'}</td>
+    <td style="color:var(--red)">${d.indem>0?f(d.indem):'-'}</td>
+    <td style="color:var(--teal)">${(d.vacc||0)+(d.vacp||0)>0?f((d.vacc||0)+(d.vacp||0)):'-'}</td>
+    <td>${f(d.ipp)}</td>
+    <td style="font-weight:600">${f(d.costo)}</td>
+  </tr>`).join('');
+}
+renderNomina();
+
+// ============================================================
+// TAB 3: EGRESOS (solo activos con egresos)
+// ============================================================
+const conPrev=ACT.filter(d=>d.prev>0),conIndem=ACT.filter(d=>d.indem>0),conVac=ACT.filter(d=>(d.vacc||0)+(d.vacp||0)>0);
+document.getElementById('eg-prev').textContent=conPrev.length;
+document.getElementById('eg-indem').textContent=conIndem.length;
+document.getElementById('eg-vac').textContent=conVac.length;
+document.getElementById('eg-tot').textContent=f(ACT.reduce((a,d)=>a+d.prev+d.indem+(d.vacc||0)+(d.vacp||0),0));
+const conP=[...ACT].filter(d=>d.prev>0||d.indem>0).sort((a,b)=>(b.prev+b.indem)-(a.prev+a.indem));
+const mxP=conP.length?Math.max(...conP.map(d=>d.prev+d.indem)):1;
+document.getElementById('bar-prev').innerHTML=conP.length?conP.map(d=>`<div class="br"><div class="bn" style="width:140px">${d.n.split(',')[0]}</div><div class="bt"><div class="bf" style="width:${((d.prev+d.indem)/mxP*100).toFixed(1)}%;background:var(--pur)"></div></div><div class="bv">${f(d.prev+d.indem)}</div></div>`).join(''):'<div style="color:var(--muted);font-size:12px;padding:10px">Sin datos</div>';
+const conV=[...ACT].filter(d=>(d.vacc||0)+(d.vacp||0)>0).sort((a,b)=>((b.vacc||0)+(b.vacp||0))-((a.vacc||0)+(a.vacp||0)));
+const mxV=conV.length?Math.max(...conV.map(d=>(d.vacc||0)+(d.vacp||0))):1;
+document.getElementById('bar-vac').innerHTML=conV.length?conV.map(d=>`<div class="br"><div class="bn" style="width:140px">${d.n.split(',')[0]}</div><div class="bt"><div class="bf" style="width:${(((d.vacc||0)+(d.vacp||0))/mxV*100).toFixed(1)}%;background:var(--teal)"></div></div><div class="bv">${f((d.vacc||0)+(d.vacp||0))}</div></div>`).join(''):'<div style="color:var(--muted);font-size:12px;padding:10px">Sin datos</div>';
+const egRows=[...ACT].filter(d=>d.prev>0||d.indem>0||(d.vacc||0)+(d.vacp||0)>0).sort((a,b)=>(b.prev+b.indem+(b.vacc||0)+(b.vacp||0))-(a.prev+a.indem+(a.vacc||0)+(a.vacp||0)));
+document.getElementById('tblEgBody').innerHTML=egRows.length?egRows.map(d=>`<tr>
+  <td style="font-weight:500">${d.n}</td><td style="color:var(--muted);font-size:11px">${d.suc}</td><td>${f(d.sbase)}</td>
+  <td style="color:var(--pur)">${d.prev>0?f(d.prev):'-'}</td>
+  <td style="color:var(--teal)">${(d.vacc||0)>0?f(d.vacc||0):'-'}</td>
+  <td style="color:var(--teal)">${(d.vacp||0)>0?f(d.vacp||0):'-'}</td>
+  <td style="color:var(--red)">${d.indem>0?f(d.indem):'-'}</td>
+  <td style="font-weight:600">${f(d.prev+d.indem+(d.vacc||0)+(d.vacp||0))}</td>
+</tr>`).join(''):'<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:20px">Sin egresos en el período</td></tr>';
+
+// ============================================================
+// HELPERS SUCURSALES
+// ============================================================
+function buildSucMap(data){
+  const map={};
+  data.forEach(d=>{
+    const s=d.suc||'Otros';
+    if(!map[s])map[s]={grp:s,emp:0,sbase:0,cv:0,cc:0,b:0,ipp:0,ag:0,prev:0,indem:0,vac:0,total:0};
+    map[s].emp++;map[s].sbase+=d.sbase;map[s].cv+=d.cv;map[s].cc+=d.cc;map[s].b+=d.b;
+    map[s].ipp+=d.ipp;map[s].ag+=d.ag;map[s].prev+=d.prev;map[s].indem+=d.indem;
+    map[s].vac+=(d.vacc||0)+(d.vacp||0);map[s].total+=d.costo;
+  });
+  return Object.values(map);
+}
+function sumMap(rows){return rows.reduce((t,r)=>{Object.keys(t).forEach(k=>t[k]+=(r[k]||0));return t;},{emp:0,sbase:0,cv:0,cc:0,b:0,ipp:0,ag:0,prev:0,indem:0,vac:0,total:0});}
+
+// ============================================================
+// TAB 4: COSTOS POR SUCURSAL
+// ============================================================
+let sucSortCol='total',sucSortDir=-1;
+function sortSuc(col){if(sucSortCol===col)sucSortDir*=-1;else{sucSortCol=col;sucSortDir=-1;}renderSucursales();}
+function renderSucursales(){
+  let rows=buildSucMap(ACT);
+  rows.sort((a,b)=>{const av=a[sucSortCol],bv=b[sucSortCol];if(typeof av==='string')return av.localeCompare(bv)*sucSortDir;return (av-bv)*sucSortDir;});
+  const tot=sumMap(rows);
+  document.getElementById('tblSucBody').innerHTML=rows.map(r=>`<tr>
+    <td style="font-weight:500">${r.grp}</td><td style="text-align:center">${r.emp}</td>
+    <td>${f(r.sbase)}</td><td style="color:var(--teal)">${r.cv>0?f(r.cv):'-'}</td>
+    <td style="color:var(--teal)">${r.cc>0?f(r.cc):'-'}</td><td style="color:var(--acc)">${r.b>0?f(r.b):'-'}</td>
+    <td>${f(r.ipp)}</td><td>${f(r.ag)}</td>
+    <td style="color:var(--pur)">${r.prev>0?f(r.prev):'-'}</td>
+    <td style="color:var(--red)">${r.indem>0?f(r.indem):'-'}</td>
+    <td style="color:var(--teal)">${r.vac>0?f(r.vac):'-'}</td>
+    <td style="font-weight:700;color:var(--acc)">${f(r.total)}</td>
+  </tr>`).join('');
+  document.getElementById('tblSucFoot').innerHTML=`<tr><td style="font-weight:700;color:var(--acc);font-size:10px;text-transform:uppercase">TOTAL</td><td style="text-align:center;font-weight:700">${tot.emp}</td><td style="font-weight:600">${f(tot.sbase)}</td><td style="font-weight:600;color:var(--teal)">${f(tot.cv)}</td><td style="font-weight:600;color:var(--teal)">${f(tot.cc)}</td><td style="font-weight:600;color:var(--acc)">${f(tot.b)}</td><td style="font-weight:600">${f(tot.ipp)}</td><td style="font-weight:600">${f(tot.ag)}</td><td style="font-weight:600;color:var(--pur)">${tot.prev>0?f(tot.prev):'-'}</td><td style="font-weight:600;color:var(--red)">${tot.indem>0?f(tot.indem):'-'}</td><td style="font-weight:600;color:var(--teal)">${tot.vac>0?f(tot.vac):'-'}</td><td style="font-weight:700;color:var(--acc)">${f(tot.total)}</td></tr>`;
+}
+
+// ============================================================
+// TAB 5: PARTICIPACIÓN %
+// ============================================================
+let pctSortCol='pTotal',pctSortDir=-1;
+function sortPct(col){if(pctSortCol===col)pctSortDir*=-1;else{pctSortCol=col;pctSortDir=-1;}renderParticipacion();}
+function renderParticipacion(){
+  const rows=buildSucMap(ACT);
+  const tot=sumMap(rows);
+  const pRows=rows.map(r=>({
+    grp:r.grp,emp:r.emp,
+    pSbase:tot.sbase>0?r.sbase/tot.sbase*100:0,
+    pCv:tot.cv>0?r.cv/tot.cv*100:0,
+    pCc:tot.cc>0?r.cc/tot.cc*100:0,
+    pB:tot.b>0?r.b/tot.b*100:0,
+    pIpp:tot.ipp>0?r.ipp/tot.ipp*100:0,
+    pAg:tot.ag>0?r.ag/tot.ag*100:0,
+    pPrev:tot.prev>0?r.prev/tot.prev*100:0,
+    pIndem:tot.indem>0?r.indem/tot.indem*100:0,
+    pVac:tot.vac>0?r.vac/tot.vac*100:0,
+    pTotal:tot.total>0?r.total/tot.total*100:0,
+  }));
+  pRows.sort((a,b)=>{const av=a[pctSortCol],bv=b[pctSortCol];if(typeof av==='string')return av.localeCompare(bv)*pctSortDir;return (av-bv)*pctSortDir;});
+  function pbar(v,c){return `<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:var(--s2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(v,100).toFixed(1)}%;background:${c};border-radius:2px"></div></div><span style="font-size:11px;width:36px;text-align:right">${fp(v)}</span></div>`;}
+  document.getElementById('tblPctBody').innerHTML=pRows.map(r=>`<tr>
+    <td style="font-weight:500">${r.grp}</td><td style="text-align:center">${r.emp}</td>
+    <td>${pbar(r.pSbase,'var(--acc)')}</td>
+    <td>${pbar(r.pCv,'var(--teal)')}</td>
+    <td>${pbar(r.pCc,'var(--teal)')}</td>
+    <td>${pbar(r.pB,'var(--ora)')}</td>
+    <td>${pbar(r.pIpp,'var(--red)')}</td>
+    <td>${pbar(r.pAg,'var(--pur)')}</td>
+    <td>${pbar(r.pPrev,'var(--pur)')}</td>
+    <td>${pbar(r.pIndem,'var(--red)')}</td>
+    <td>${pbar(r.pVac,'var(--teal)')}</td>
+    <td>${pbar(r.pTotal,'var(--acc)')}</td>
+  </tr>`).join('');
+  document.getElementById('tblPctFoot').innerHTML=`<tr><td style="font-weight:700;color:var(--acc);font-size:10px;text-transform:uppercase">TOTAL</td><td style="text-align:center;font-weight:700">${tot.emp}</td>${Array(10).fill('<td style="font-size:11px;color:var(--acc)">100%</td>').join('')}</tr>`;
+}
+
+// ============================================================
+// TAB 6: GRÁFICOS
+// ============================================================
+let chart1Inst=null,chart2Inst=null,chart3Inst=null;
+const COLORS=['#e8c547','#4ecdc4','#ff6b6b','#a29bfe','#ff9f43','#6bcb77','#fd79a8','#74b9ff','#55efc4','#fdcb6e','#e17055','#81ecec'];
+
+function filteredData(){
+  const su=document.getElementById('gfSuc').value;
+  const es=document.getElementById('gfEstado').value;
+  const g=document.getElementById('gfGen').value;
+  const a=document.getElementById('gfAntig').value;
+  return ALL.filter(d=>{
+    if(su&&d.suc!==su)return false;
+    if(es&&d.estado!==es)return false;
+    if(g&&d.gen!==g)return false;
+    if(a&&!antigFilter(d.antig,a))return false;
+    return true;
+  });
+}
+
+function mkChart(id,inst,type,labels,datasets,opts={}){
+  if(inst)inst.destroy();
+  const ctx=document.getElementById(id).getContext('2d');
+  return new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7180',font:{size:11}}},tooltip:{backgroundColor:'#ffffff',borderColor:'#dde1ea',borderWidth:1,titleColor:'#1a1d29',bodyColor:'#6b7180'}},scales:type==='pie'||type==='doughnut'?{}:{x:{ticks:{color:'#6b7180',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}},y:{ticks:{color:'#6b7180',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}}}, ...opts}});
+}
+
+function renderGraficos(){
+  const data=filteredData();
+  const vista=document.getElementById('gfVista').value;
+  document.getElementById('gf-cnt').textContent=`${data.length} empleados en la selección`;
+
+  if(vista==='costos'){
+    const rows=buildSucMap(data).sort((a,b)=>b.total-a.total);
+    const labels=rows.map(r=>r.grp);
+    document.getElementById('gf-title1').textContent='Costo Total por Sucursal';
+    chart1Inst=mkChart('chart1',chart1Inst,'bar',labels,[{label:'Costo Total',data:rows.map(r=>r.total),backgroundColor:COLORS[0]+'99',borderColor:COLORS[0],borderWidth:1}]);
+    document.getElementById('gf-title2').textContent='Empleados por Sucursal';
+    chart2Inst=mkChart('chart2',chart2Inst,'bar',labels,[{label:'Empleados',data:rows.map(r=>r.emp),backgroundColor:COLORS[1]+'99',borderColor:COLORS[1],borderWidth:1}]);
+    document.getElementById('gf-title3').textContent='Salario Base vs Comisiones por Sucursal';
+    chart3Inst=mkChart('chart3',chart3Inst,'bar',labels,[{label:'Salario Base',data:rows.map(r=>r.sbase),backgroundColor:COLORS[0]+'88',borderColor:COLORS[0],borderWidth:1},{label:'Comisiones',data:rows.map(r=>r.cv+r.cc),backgroundColor:COLORS[1]+'88',borderColor:COLORS[1],borderWidth:1},{label:'Bonos',data:rows.map(r=>r.b),backgroundColor:COLORS[4]+'88',borderColor:COLORS[4],borderWidth:1}]);
+  } else if(vista==='composicion'){
+    const totals={sbase:data.reduce((a,d)=>a+d.sbase,0),cv:data.reduce((a,d)=>a+d.cv,0),cc:data.reduce((a,d)=>a+d.cc,0),b:data.reduce((a,d)=>a+d.b,0),ipp:data.reduce((a,d)=>a+d.ipp,0),ag:data.reduce((a,d)=>a+d.ag,0)};
+    const pieLabels=['Sal. Base','Com. Ventas','Com. Cobr.','Bonos','IPS Patr.','Aguinaldo'];
+    const pieData=Object.values(totals);
+    document.getElementById('gf-title1').textContent='Composición del Costo Total';
+    chart1Inst=mkChart('chart1',chart1Inst,'doughnut',pieLabels,[{data:pieData,backgroundColor:COLORS.slice(0,6).map(c=>c+'cc'),borderColor:COLORS.slice(0,6),borderWidth:2}]);
+    document.getElementById('gf-title2').textContent='Composición (Barras)';
+    chart2Inst=mkChart('chart2',chart2Inst,'bar',pieLabels,[{data:pieData,backgroundColor:COLORS.slice(0,6).map(c=>c+'99'),borderColor:COLORS.slice(0,6),borderWidth:1}]);
+    const rows2=buildSucMap(data).sort((a,b)=>b.total-a.total).slice(0,8);
+    document.getElementById('gf-title3').textContent='% Composición por Sucursal (apilado)';
+    chart3Inst=mkChart('chart3',chart3Inst,'bar',rows2.map(r=>r.grp),[
+      {label:'Sal. Base',data:rows2.map(r=>r.sbase),backgroundColor:COLORS[0]+'99',borderColor:COLORS[0],borderWidth:1},
+      {label:'Comisiones',data:rows2.map(r=>r.cv+r.cc),backgroundColor:COLORS[1]+'99',borderColor:COLORS[1],borderWidth:1},
+      {label:'Bonos',data:rows2.map(r=>r.b),backgroundColor:COLORS[4]+'99',borderColor:COLORS[4],borderWidth:1},
+      {label:'IPS Patr.',data:rows2.map(r=>r.ipp),backgroundColor:COLORS[2]+'99',borderColor:COLORS[2],borderWidth:1},
+    ],{scales:{x:{stacked:true,ticks:{color:'#6b7180',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}},y:{stacked:true,ticks:{color:'#6b7180',font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}}}});
+  } else if(vista==='genero'){
+    const gM=data.filter(d=>d.gen==='Masculino').length,gF=data.filter(d=>d.gen==='Femenino').length;
+    document.getElementById('gf-title1').textContent='Distribución por Género';
+    chart1Inst=mkChart('chart1',chart1Inst,'doughnut',['Masculino','Femenino'],[{data:[gM,gF],backgroundColor:['#4ecdc4cc','#ff9f43cc'],borderColor:['#4ecdc4','#ff9f43'],borderWidth:2}]);
+    const rows3=buildSucMap(data).sort((a,b)=>b.emp-a.emp);
+    const mRows=rows3.map(r=>({grp:r.grp,mCount:data.filter(d=>d.suc===r.grp&&d.gen==='Masculino').length,fCount:data.filter(d=>d.suc===r.grp&&d.gen==='Femenino').length}));
+    document.getElementById('gf-title2').textContent='Género por Sucursal';
+    chart2Inst=mkChart('chart2',chart2Inst,'bar',mRows.map(r=>r.grp),[{label:'Masculino',data:mRows.map(r=>r.mCount),backgroundColor:'#4ecdc499',borderColor:'#4ecdc4',borderWidth:1},{label:'Femenino',data:mRows.map(r=>r.fCount),backgroundColor:'#ff9f4399',borderColor:'#ff9f43',borderWidth:1}]);
+    const costM=data.filter(d=>d.gen==='Masculino').reduce((a,d)=>a+d.costo,0);
+    const costF=data.filter(d=>d.gen==='Femenino').reduce((a,d)=>a+d.costo,0);
+    document.getElementById('gf-title3').textContent='Costo Total por Género';
+    chart3Inst=mkChart('chart3',chart3Inst,'bar',['Masculino','Femenino'],[{label:'Costo Total',data:[costM,costF],backgroundColor:['#4ecdc499','#ff9f4399'],borderColor:['#4ecdc4','#ff9f43'],borderWidth:1}]);
+  } else if(vista==='antiguedad'){
+    const antBands=[{l:'<1 año',min:0,max:1},{l:'1-3 años',min:1,max:3},{l:'3-5 años',min:3,max:5},{l:'5-10 años',min:5,max:10},{l:'10+ años',min:10,max:999}];
+    const antCounts=antBands.map(b=>data.filter(d=>d.antig>=b.min&&d.antig<b.max).length);
+    const antCosts=antBands.map(b=>data.filter(d=>d.antig>=b.min&&d.antig<b.max).reduce((a,d)=>a+d.costo,0));
+    document.getElementById('gf-title1').textContent='Distribución por Antigüedad';
+    chart1Inst=mkChart('chart1',chart1Inst,'doughnut',antBands.map(b=>b.l),[{data:antCounts,backgroundColor:COLORS.slice(0,5).map(c=>c+'cc'),borderColor:COLORS.slice(0,5),borderWidth:2}]);
+    document.getElementById('gf-title2').textContent='Empleados por Rango de Antigüedad';
+    chart2Inst=mkChart('chart2',chart2Inst,'bar',antBands.map(b=>b.l),[{label:'Empleados',data:antCounts,backgroundColor:COLORS[0]+'99',borderColor:COLORS[0],borderWidth:1}]);
+    document.getElementById('gf-title3').textContent='Costo Total por Antigüedad';
+    chart3Inst=mkChart('chart3',chart3Inst,'bar',antBands.map(b=>b.l),[{label:'Costo Total',data:antCosts,backgroundColor:COLORS[1]+'99',borderColor:COLORS[1],borderWidth:1}]);
+  } else if(vista==='comisiones'){
+    const topCom=[...data].filter(d=>d.cv>0).sort((a,b)=>b.cv-a.cv).slice(0,10);
+    document.getElementById('gf-title1').textContent='Top 10 — Comisiones Ventas';
+    chart1Inst=mkChart('chart1',chart1Inst,'bar',topCom.map(d=>d.n.split(',')[0]),[{label:'Comisiones',data:topCom.map(d=>d.cv),backgroundColor:COLORS[0]+'99',borderColor:COLORS[0],borderWidth:1}]);
+    const topBon=[...data].filter(d=>d.b>0).sort((a,b)=>b.b-a.b).slice(0,10);
+    document.getElementById('gf-title2').textContent='Top 10 — Bonos';
+    chart2Inst=mkChart('chart2',chart2Inst,'bar',topBon.map(d=>d.n.split(',')[0]),[{label:'Bono',data:topBon.map(d=>d.b),backgroundColor:COLORS[1]+'99',borderColor:COLORS[1],borderWidth:1}]);
+    const sucCom=buildSucMap(data).sort((a,b)=>b.cv-a.cv).slice(0,8);
+    document.getElementById('gf-title3').textContent='Comisiones Totales por Sucursal';
+    chart3Inst=mkChart('chart3',chart3Inst,'bar',sucCom.map(r=>r.grp),[{label:'Com. Ventas',data:sucCom.map(r=>r.cv),backgroundColor:COLORS[0]+'99',borderColor:COLORS[0],borderWidth:1},{label:'Com. Cobr.',data:sucCom.map(r=>r.cc),backgroundColor:COLORS[1]+'99',borderColor:COLORS[1],borderWidth:1}]);
+  }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['resumen','nomina','egresos','sucursales','participacion','graficos'][i]===t));
+  document.querySelectorAll('.pane').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pane-'+t).classList.add('active');
+  if(t==='sucursales')renderSucursales();
+  if(t==='participacion')renderParticipacion();
+  if(t==='graficos')renderGraficos();
+}
+</script>
+</body>
+</html>
